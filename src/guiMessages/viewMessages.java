@@ -5,10 +5,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class viewMessages {
@@ -21,8 +23,9 @@ public class viewMessages {
 	private static Label label_ApplicationTitle = new Label("Secret Message Encryption");
 
 	
-	private static Label label_EnterMessageInstructions = new Label("Enter your message and encryption");
-	private static Label label_decryptInstructions = new Label("Enter the encrypted message and key");
+	private static Label label_EnterMessageInstructions = new Label("Encrypt a message");
+	private static Label label_decryptInstructions = new Label("Decrypt a message");
+	private static Separator separator = new Separator();
 	protected static Alert alertMessageError = new Alert(AlertType.INFORMATION);
 	protected static Alert alertDecryptError = new Alert(AlertType.INFORMATION);
 	
@@ -37,7 +40,7 @@ public class viewMessages {
 	public static TextField decrypt = new TextField();
 	private static Button button_decrypt = new Button("Decrypt");
 	
-	private static Button generate_Matrix = new Button("Generate An Encryption Matrix");
+	private static Button generate_Matrix = new Button("Generate Key");
 	
 	private static Button button_Quit = new Button("Quit");
 
@@ -60,7 +63,7 @@ public class viewMessages {
 		text_message.setText("");		// Reset the message from the last use
 
 		// Set the title for the window, display the page, and wait for the user to do something
-		theStage.setTitle("Enter Message page");		
+		theStage.setTitle("Secret Message Encryption");
 		theStage.setScene(theEnterMessageScene);
 		theStage.show();
 	}
@@ -69,67 +72,72 @@ public class viewMessages {
 	 * <p> Method: viewMessages() </p>
 	 * 
 	 * <p> Description: This method is called when the application first starts. </p>
-	 * 
-	 * @param ps specifies the JavaFX Stage to be used for this GUI and it's methods
-	 * 
-	 * @param theRoot specifies the JavaFX Pane to be used for this GUI and it's methods
-	 * 
-	 * @param db specifies the Database to be used by this GUI and it's methods
-	 * 
 	 */
 	private viewMessages() {
 
 		// Create the Pane for the list of widgets and the Scene for the window
 		theRootPane = new Pane();
+		theRootPane.setStyle("-fx-background-color: white;");
 		theEnterMessageScene = new Scene(theRootPane, width, height);
-		
+
 		// Populate the window with the title and other common widgets and set their static state
-		setupLabelUI(label_ApplicationTitle, "Arial", 32, width, Pos.CENTER, 0, 10);
+		setupLabelUI(label_ApplicationTitle, "Segoe UI", 30, width, Pos.CENTER, 0, 20);
+		label_ApplicationTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 30));
 
+		// Encrypt section: message, key (with a generate button beside it), and the encrypt button
+		setupLabelUI(label_EnterMessageInstructions, "Segoe UI", 18, 300, Pos.BASELINE_LEFT, 50, 90);
+		label_EnterMessageInstructions.setFont(Font.font("Segoe UI", FontWeight.BOLD, 18));
 
-		// enter message
+		setupTextUI(text_message, "Segoe UI", 16, 450, Pos.BASELINE_LEFT, 50, 125, true);
+		text_message.setPromptText("Message to encrypt");
+		setupTextUI(encrypt, "Segoe UI", 16, 450, Pos.BASELINE_LEFT, 50, 170, true);
+		encrypt.setPromptText("Encryption key (9 numbers separated by spaces)");
 
-		setupLabelUI(label_EnterMessageInstructions, "Arial", 18, width, Pos.BASELINE_LEFT, 20, 190);
-		setupLabelUI(label_decryptInstructions, "Arial", 18, width, Pos.BASELINE_LEFT, 20, 330);
+		setupButtonUI(generate_Matrix, "Segoe UI", 16, 200, Pos.CENTER, 520, 170);
+		generate_Matrix.setOnAction((event) -> {
+			int[][] matrix = controllerMessage.generateMatrix(3);
+			encrypt.setText(controllerMessage.convertFromMatrixToStringofNumbers1(matrix).trim());
+		});
 
-		// Establish the text input operand field for the message
-		setupTextUI(text_message, "Arial", 18, 300, Pos.BASELINE_LEFT, 50, 220, true);
-		text_message.setPromptText("Enter message");
-		setupTextUI(encrypt, "Arial", 18, 300, Pos.BASELINE_LEFT, 50, 260, true);
-		encrypt.setPromptText("Enter Encryption");
-		
-		setupTextUI(encrypted_message, "Arial", 18, 300, Pos.BASELINE_LEFT, 50, 360, true);
-		encrypted_message.setPromptText("Enter encrypted message");
-		
-		setupTextUI(decrypt, "Arial", 18, 300, Pos.BASELINE_LEFT, 50, 400, true);
-		decrypt.setPromptText("Enter decryption key");
-		
-		// Set up the enter button
-		setupButtonUI(button_Enter, "Dialog", 18, 200, Pos.CENTER, 475, 220);
+		setupButtonUI(button_Enter, "Segoe UI", 16, 200, Pos.CENTER, 50, 215);
+		button_Enter.setDefaultButton(true);
 		button_Enter.setOnAction((event) -> {controllerMessage.encryptMessage(theStage); });
 
-		setupButtonUI(button_decrypt, "Dialog", 18, 200, Pos.CENTER, 475, 360);
+		// Divider between the two sections
+		separator.setPrefWidth(width - 100);
+		separator.setLayoutX(50);
+		separator.setLayoutY(280);
+
+		// Decrypt section: encrypted numbers, key, and the decrypt button
+		setupLabelUI(label_decryptInstructions, "Segoe UI", 18, 300, Pos.BASELINE_LEFT, 50, 300);
+		label_decryptInstructions.setFont(Font.font("Segoe UI", FontWeight.BOLD, 18));
+
+		setupTextUI(encrypted_message, "Segoe UI", 16, 450, Pos.BASELINE_LEFT, 50, 335, true);
+		encrypted_message.setPromptText("Encrypted message (numbers)");
+		setupTextUI(decrypt, "Segoe UI", 16, 450, Pos.BASELINE_LEFT, 50, 380, true);
+		decrypt.setPromptText("Decryption key (the 9 numbers used to encrypt)");
+
+		setupButtonUI(button_decrypt, "Segoe UI", 16, 200, Pos.CENTER, 50, 425);
 		button_decrypt.setOnAction((event) -> {controllerMessage.decryptMessage(theStage); });
-		
-		setupButtonUI(generate_Matrix, "Dialog", 18, 200, Pos.CENTER, 475, 90);
-		generate_Matrix.setOnAction((event) -> {controllerMessage.generateMatrix(3); });
-		
-		alertMessageError.setTitle("Empty Message, please type a message");
+
+		alertMessageError.setTitle("Missing input");
 		alertMessageError.setHeaderText(null);
-		
-		alertDecryptError.setTitle("Empty, please type a message");
+		alertMessageError.setContentText("Please enter a message and an encryption key.");
+
+		alertDecryptError.setTitle("Missing input");
 		alertDecryptError.setHeaderText(null);
-		
-		
-		// Set up the Quit button  
-		setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 300, 520);
+		alertDecryptError.setContentText("Please enter the encrypted message and the decryption key.");
+
+		// Set up the Quit button in the bottom right corner
+		setupButtonUI(button_Quit, "Segoe UI", 16, 120, Pos.CENTER, width - 170, height - 70);
 		button_Quit.setOnAction((event) -> {controllerMessage.performQuit(); });
 
 
 		theRootPane.getChildren().addAll(
-				label_ApplicationTitle, 
-				label_EnterMessageInstructions, text_message, encrypted_message, decrypt, button_decrypt,
-				button_Enter, generate_Matrix, encrypt, label_decryptInstructions,
+				label_ApplicationTitle,
+				label_EnterMessageInstructions, text_message, encrypt, generate_Matrix, button_Enter,
+				separator,
+				label_decryptInstructions, encrypted_message, decrypt, button_decrypt,
 				button_Quit);
 	}
 
