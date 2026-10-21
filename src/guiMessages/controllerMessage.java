@@ -4,6 +4,12 @@ package guiMessages;
 import java.util.Random;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 public class controllerMessage {
@@ -52,12 +58,13 @@ enmessageMatrix = encryptMessage(messageMatrix, invertableMatrix);
 
 System.out.print("Encrypted Message: ");
 encryptedMessage = convertFromMatrixToStringofNumbers(enmessageMatrix);
-Message_Numbers.setTitle("The Encrypted Message reads:");
-Message_Numbers.setHeaderText(encryptedMessage);
-Message_Numbers.showAndWait();
 
 System.out.print("Key: ");
 key1 = convertFromMatrixToStringofNumbers1(invertableMatrix);
+
+showCopyable(Message_Numbers, "The Encrypted Message reads:",
+		new String[] {"Encrypted message:", "Key:"},
+		new String[] {encryptedMessage, key1});
 }
 }
 }
@@ -209,10 +216,36 @@ public static int[][] generateMatrix(int n) {
 	
 
 	String invertableMatrixString = convertFromMatrixToStringofNumbers1(invertableMatrix);
-	EncryptionMatrix.setTitle("The generated Encryption numbers are:");
-	EncryptionMatrix.setHeaderText(invertableMatrixString);
-	EncryptionMatrix.showAndWait();
+	showCopyable(EncryptionMatrix, "The generated Encryption numbers are:",
+			new String[] {"Key:"},
+			new String[] {invertableMatrixString});
 	return invertableMatrix;
+}
+
+// shows an alert with a read only text field and a copy button for each value so the user can copy them
+protected static void showCopyable(Alert alert, String title, String[] labels, String[] values) {
+	alert.setTitle(title);
+	alert.setHeaderText(null);
+
+	GridPane grid = new GridPane();
+	grid.setHgap(10);
+	grid.setVgap(10);
+	for (int i = 0; i<labels.length; i++) {
+		TextField field = new TextField(values[i].trim());
+		field.setEditable(false);
+		field.setPrefColumnCount(30);
+
+		// copy button puts the field's text on the system clipboard
+		Button copy = new Button("Copy");
+		copy.setOnAction((event) -> {
+			ClipboardContent content = new ClipboardContent();
+			content.putString(field.getText());
+			Clipboard.getSystemClipboard().setContent(content);
+		});
+		grid.addRow(i, new Label(labels[i]), field, copy);
+	}
+	alert.getDialogPane().setContent(grid);
+	alert.showAndWait();
 }
 			
 protected static double[][] encryptMessage(double[][] messageMatrix, int[][] invertableMatrix){
