@@ -24,5 +24,3 @@ public static void main(String[] args) {
 						// is done, it calls the start method shown above.
 }
 }
-
-// Test reverting commits
